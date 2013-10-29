@@ -1,0 +1,16 @@
+circus
+Django
+MySQL-python
+django-localflavor-us
+
+# For hosting:
+meinheld
+chaussette
+
+# For Travis CI:
+pep8
+pyflakes
+
+# For coveralls.io:
+coverage
+coveralls
