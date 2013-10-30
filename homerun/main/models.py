@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth.models import User
 
 from django_localflavor_us.models import USStateField
 
@@ -8,11 +8,8 @@ class Contact(models.Model):
     name = models.CharField(max_length=128)
 
 
-class Agent(AbstractBaseUser):
-    USERNAME_FIELD = 'username'
-
-    username = models.CharField(max_length=254, unique=True)
-    email = models.EmailField(blank=True)
+class Agent(models.Model):
+    user = models.OneToOneField(User)
     contact = models.ForeignKey(Contact)
 
 
@@ -28,7 +25,7 @@ class Property(models.Model):
     zipcode = models.CharField(max_length=11)
 
 
-class Specifications(models.Model):
+class Rooms(models.Model):
     property = models.OneToOneField(Property)
     bed = models.PositiveSmallIntegerField(default=0)
     bath = models.PositiveSmallIntegerField(default=0)
@@ -38,9 +35,13 @@ class Specifications(models.Model):
     eatin = models.BooleanField()
     bonus = models.BooleanField()
     loft = models.BooleanField()
+
+
+class Amenities(models.Model):
+    property = models.OneToOneField(Property)
     gasfire = models.BooleanField()
     woodfire = models.BooleanField()
-    built = models.PositiveSmallIntegerField()
+    year = models.PositiveSmallIntegerField()
 
 
 class Rental(Property):

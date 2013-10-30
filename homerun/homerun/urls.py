@@ -1,17 +1,10 @@
-from django.conf.urls import patterns, include, url
+from django.conf.urls import patterns
+from django.conf.urls import include
+from django.conf.urls import url
 
-# Uncomment the next two lines to enable the admin:
-# from django.contrib import admin
-# admin.autodiscover()
+from main.views import IVRMainMenuView
+
 
 urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'homerun.views.home', name='home'),
-    # url(r'^homerun/', include('homerun.foo.urls')),
-
-    # Uncomment the admin/doc line below to enable admin documentation:
-    # url(r'^admin/doc/', include('django.contrib.admindocs.urls')),
-
-    # Uncomment the next line to enable the admin:
-    # url(r'^admin/', include(admin.site.urls)),
+    url(r'^ivr/(\w+)/$', IVRMainMenuView.as_view(), name='ivr_main')
 )

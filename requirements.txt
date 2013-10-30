@@ -2,6 +2,7 @@ circus
 Django
 MySQL-python
 django-localflavor-us
+twilio
 
 # For hosting:
 meinheld
