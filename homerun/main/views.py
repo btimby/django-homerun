@@ -11,6 +11,9 @@ from django.views.generic.base import View
 from django.contrib.auth.models import User
 
 
+VOICE = 'female'
+
+
 class IVRView(View):
     logger = logging.getLogger('django.request')
 
@@ -25,7 +28,7 @@ class IVRView(View):
             # Clear out any TwiML built so far.
             response.verbs = []
             # Return error message.
-            response.say("Unable to handle your call, please try again later.")
+            response.say("Unable to handle your call, please try again later.", voice=VOICE)
             response.hangup()
         return HttpResponse(response.toxml(), content_type='text/xml')
 
@@ -36,20 +39,21 @@ class IVRMenuView(IVRView):
     def get(self, request, response):
         if not self.menu:
             raise NotImplemented('You must define the menu attribute')
-        response.say('Please make a selection from the following menu.')
+        response.say('Please make a selection from the following menu.', voice=VOICE)
         with response.gather(numDigits=1, method='POST') as r:
             menu = ['Press %s to %s.' % (k, v) for k, v in self.menu.items()]
             r.pause(length=3)
-            r.say(' '.join(menu), loop=3)
+            r.say(' '.join(menu), loop=3, voice=VOICE)
         # If the user does not make a selection, say goodbye, then hang-up
         response.say("Goodbye")
         response.hangup()
 
     def post(self, request, response):
         digits = request.POST.get('digits')
+        self.logger.debug('digits: ' + digits)
         if digits not in self.menu:
-            response.say('You have chosen an invalid option.')
-            response.redirect(request.build_absolute_uri())
+            response.say('You have chosen an invalid option.', voice=VOICE)
+            response.redirect(request.build_absolute_uri(), method='GET')
             return
         try:
             handler = getattr(self, 'handle_%s' % digits)
@@ -65,11 +69,11 @@ class IVRMainMenuView(IVRMenuView):
     }
 
     def get(self, request, response):
-        response.say('Thank you for calling.')
+        response.say('Thank you for calling.', voice=VOICE)
         return super(IVRMainMenuView, self).get(request, response)
 
     def handle_1(self, request, response):
-        response.say("Listing now.")
+        response.say("Listing now.", voice=VOICE)
 
     def handle_2(self, request, response):
-        response.say('Forwarding to agent.')
+        response.say('Forwarding to agent.', voice=VOICE)
