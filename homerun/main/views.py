@@ -1,6 +1,7 @@
 import logging
 
-from twilio import twiml
+from twilio.twiml import Response as BaseResponse
+from twilio.twiml import Gather as BaseGather
 
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
@@ -11,35 +12,33 @@ from django.views.generic.base import View
 from django.contrib.auth.models import User
 
 
-class TwiMLGather(twiml.Gather):
+class Gather(BaseGather):
     def __init__(self, *args, **kwargs):
         self.voice = kwargs.pop('voice', None)
-        super(TwiMLGather, self).__init__(*args, **kwargs)
+        super(Gather, self).__init__(*args, **kwargs)
 
     def say(self, *args, **kwargs):
         # TODO: make this a mixin, shared with TwiMLResponse
         if self.voice:
             kwargs.setdefault('voice', self.voice)
-        return super(TwiMLGather, self).say(*args, **kwargs)
+        return super(Gather, self).say(*args, **kwargs)
 
 
-class TwiMLResponse(twiml.Response):
-    nestables = twiml.Response.nestables + ['TwiMLGather', ]
-
+class Response(BaseResponse):
     def __init__(self, *args, **kwargs):
         self.voice = kwargs.pop('voice', None)
-        super(TwiMLResponse, self).__init__(*args, **kwargs)
+        super(Response, self).__init__(*args, **kwargs)
 
     def say(self, *args, **kwargs):
         # TODO: make this a mixin, shared with TwiMLGather
         if self.voice:
             kwargs.setdefault('voice', self.voice)
-        return super(TwiMLResponse, self).say(*args, **kwargs)
+        return super(Response, self).say(*args, **kwargs)
 
     def gather(self, *args, **kwargs):
         if self.voice:
             kwargs.setdefault('voice', self.voice)
-        return self.append(TwiMLGather(*args, **kwargs))
+        return self.append(Gather(*args, **kwargs))
 
     def clear(self):
         self.verbs = []
@@ -51,7 +50,7 @@ class IVRView(View):
 
     @method_decorator(csrf_exempt)
     def dispatch(self, request, username, **kwargs):
-        response = TwiMLResponse(voice=self.voice)
+        response = Response(voice=self.voice)
         try:
             request.user = User.objects.get(username=username)
             super(IVRView, self).dispatch(request, response, **kwargs)
