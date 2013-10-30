@@ -40,19 +40,18 @@ class IVRMenuView(IVRView):
         if not self.menu:
             raise NotImplemented('You must define the menu attribute')
         response.say('Please make a selection from the following menu.', voice=VOICE)
-        response.pause(length=1)
         with response.gather(numDigits=1, method='POST') as r:
             menu = ['Press %s to %s.' % (k, v) for k, v in self.menu.items()]
-            # Wait before repeating
-            menu.append('...')
-            r.say(' '.join(menu), loop=3, voice=VOICE)
+            # Do our own loop, since a pause is not easy to inject between repeats.
+            for i in range(3):
+                r.say(' '.join(menu), voice=VOICE)
+                r.pause(length=3)
         # If the user does not make a selection, say goodbye, then hang-up
         response.say("Goodbye")
         response.hangup()
 
     def post(self, request, response):
-        digits = request.POST.get('digits')
-        self.logger.debug('digits: ' + digits)
+        digits = request.POST.get('Digits')
         if digits not in self.menu:
             response.say('You have chosen an invalid option.', voice=VOICE)
             response.redirect(request.build_absolute_uri(), method='GET')
