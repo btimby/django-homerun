@@ -11,7 +11,7 @@ from django.views.generic.base import View
 from django.contrib.auth.models import User
 
 
-VOICE = 'female'
+VOICE = 'woman'
 
 
 class IVRView(View):
@@ -40,9 +40,11 @@ class IVRMenuView(IVRView):
         if not self.menu:
             raise NotImplemented('You must define the menu attribute')
         response.say('Please make a selection from the following menu.', voice=VOICE)
+        response.pause(length=1)
         with response.gather(numDigits=1, method='POST') as r:
             menu = ['Press %s to %s.' % (k, v) for k, v in self.menu.items()]
-            r.pause(length=3)
+            # Wait before repeating
+            menu.append('...')
             r.say(' '.join(menu), loop=3, voice=VOICE)
         # If the user does not make a selection, say goodbye, then hang-up
         response.say("Goodbye")
