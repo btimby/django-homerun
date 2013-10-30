@@ -54,12 +54,12 @@ class IVRMenuView(IVRView):
         try:
             handler = getattr(self, 'handle_%s' % digits)
         except AttributeError:
-            raise NotImplemented('You must implement a handler for each option')
+            raise NotImplemented('You must implement a handler for each menu option')
         handler(request, response)
 
 
 class IVRMainMenuView(IVRMenuView):
-    options = {
+    menu = {
         '1': 'hear a list of available homes',
         '2': 'reach a customer service representative',
     }
